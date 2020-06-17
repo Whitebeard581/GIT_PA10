@@ -2,24 +2,33 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager thisManager = null;  
     [SerializeField] private Text Txt_Score = null;
     [SerializeField] private Text Txt_Message = null;
+    [SerializeField] private Text Txt_Highscore = null;
     private int Score = 0;
+    private int Lives = 1;
+    private int HighScore = 0;
 
     void Start()
     {
         thisManager = this;
         Time.timeScale = 0;
+
+        HighScore = PlayerPrefs.GetInt("HIGHSCORE");
+        Txt_Highscore.text = "HIGHSCORE : " + HighScore;
     }
 
     void Update()
     {
         if (Time.timeScale == 0 && Input.GetKeyDown(KeyCode.Return))
+        {
             StartGame();
+        }
     }
 
     public void UpdateScore(int value)
@@ -38,8 +47,26 @@ public class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        Time.timeScale = 0;
-        Txt_Message.text = "GAMEOVER! \nPRESS ENTER TO RESTART GAME.";
-        Txt_Message.color = Color.red;
+        if (Score > HighScore)
+        {
+            PlayerPrefs.SetInt("HIGHSCORE", Score);
+        }
+        SceneManager.LoadScene("GameLose");
+    }
+
+    public void UpdateLives()
+    {
+        Lives--;
+
+        if (Lives <= 0)
+        {
+            GameOver();
+        }
+    }
+
+    public void UpdateScore()
+    {
+        Score++;
+        Txt_Score.text = "SCORE : " + Score;
     }
 }
